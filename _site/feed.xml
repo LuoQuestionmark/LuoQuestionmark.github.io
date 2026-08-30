@@ -1,4 +1,80 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-08-28T21:14:34+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Wenhao Luo’s Personal Site</title><subtitle>This is my personal website hosting on GitHub.</subtitle><entry><title type="html">first post</title><link href="http://localhost:4000/dev/2025/08/29/first-post.html" rel="alternate" type="text/html" title="first post" /><published>2025-08-29T04:00:00+08:00</published><updated>2025-08-29T04:00:00+08:00</updated><id>http://localhost:4000/dev/2025/08/29/first-post</id><content type="html" xml:base="http://localhost:4000/dev/2025/08/29/first-post.html"><![CDATA[<p>This is my first post, which serves as a test post, testing if the Jekyll works nicely with GitHub Pages.</p>]]></content><author><name></name></author><category term="DEV" /><summary type="html"><![CDATA[This is my first post, which serves as a test post, testing if the Jekyll works nicely with GitHub Pages.]]></summary></entry><entry><title type="html">C：从 “hello world” 程序开始</title><link href="http://localhost:4000/tech/2025/08/29/hello-c.html" rel="alternate" type="text/html" title="C：从 “hello world” 程序开始" /><published>2025-08-29T04:00:00+08:00</published><updated>2025-08-29T04:00:00+08:00</updated><id>http://localhost:4000/tech/2025/08/29/hello-c</id><content type="html" xml:base="http://localhost:4000/tech/2025/08/29/hello-c.html"><![CDATA[<p>这篇文章是本人在<a href="gcores.com">机核网</a>投稿的作品。考虑到本人的社会工程学实践，机核网用户并不知道本人的名字，看到这篇文章的读者也请不要将本人的名字在论坛分享。如果对本人的著作权有所怀疑，还请在机核网站内向文章的作者发私信确认。</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2026-08-30T14:28:51+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Wenhao Luo’s Personal Site</title><subtitle>This is my personal website hosting on GitHub.</subtitle><entry><title type="html">Install a Font with Old Ligature on Kindle</title><link href="http://localhost:4000/typography/2026/08/30/install-a-font-with-old-ligature-on-kindle.html" rel="alternate" type="text/html" title="Install a Font with Old Ligature on Kindle" /><published>2026-08-30T14:30:00+08:00</published><updated>2026-08-30T14:30:00+08:00</updated><id>http://localhost:4000/typography/2026/08/30/install-a-font-with-old-ligature-on-kindle</id><content type="html" xml:base="http://localhost:4000/typography/2026/08/30/install-a-font-with-old-ligature-on-kindle.html"><![CDATA[<style>
+  @font-face {
+    font-family: "KpRoman-Oldstyle";
+    src: url("/assets/fonts/KpRoman-Regular-Oldstyle.ttf") format("truetype");
+  }
+
+  p {
+    font-family: "KpRoman-Oldstyle", Courier, monospace;
+  }
+</style>
+
+<h2 id="inspiration--motivation">Inspiration &amp; Motivation</h2>
+
+<p>A few years ago, I bought some high-end books in France. These books are parts of the <em>Bibliothèque de la Pléiade</em>, with very thin papers, a leather cover, and very curious typesets: extra ligatures for the combinations of letters such as “ct” “st”. For some OpenType fonts, these are considered as “<a href="https://en.wikipedia.org/wiki/Ligature_(writing)#Computer_typesetting">discretionary ligature</a>”. As the name suggests, less common compare to more popular ligatures, such as ff, fi, ffi.</p>
+
+<p>I wanted to install such a font on my Kindle, and this article explain how I did it. Actually, the particular article use the exact font that I have configured based on the font <a href="https://ctan.org/tex-archive/fonts/kpfonts-otf">KpRoman</a>. (It took me two hours to make it work on Jekyll, I hate Web programming.)</p>
+
+<h2 id="selection-of-fonts">Selection of Fonts</h2>
+
+<p>The first font I found with such ligatures is <a href="https://fonts.adobe.com/fonts/minion">Adobe Minion</a> family. However, this is a paid font. Following suggestion from LLM, I found the KpRoman fonts, which also looks very nice and can be downloaded from <a href="https://ctan.org/tex-archive/fonts/kpfonts-otf">CTAN</a>. The creator kindly put these fonts under SIL Open Font License, which means it can be used freely on my Kindle.</p>
+
+<p>Here is how it looks like on my Kindle:
+<img src="/../../../../../assets/images/kindle_screenshot.png" alt="Kindle Screen Capture with KpRoman configured" /></p>
+
+<h2 id="install-fonts-on-kindle">Install Fonts on Kindle</h2>
+
+<p>To install a font on Kindle is quite easy: just copy-paste the font file (support <code class="language-plaintext highlighter-rouge">ttf</code> or <code class="language-plaintext highlighter-rouge">otf</code> format) to the <code class="language-plaintext highlighter-rouge">fonts</code> folder on Kindle. The rest is to find a font that grants relavant ligatures. As mentioned earlier, for OpenType fonts, these ligatures are considered as “discretionary ligature” and can be activated with <code class="language-plaintext highlighter-rouge">dlig</code> option enabled.</p>
+
+<p>However, while it is relatively easy to enable such feature with CSS file or TeX, Kindle readers do not provide free access to toggle <code class="language-plaintext highlighter-rouge">dlig</code> features, which are disabled by default. Although embedding <code class="language-plaintext highlighter-rouge">.css</code> file while exporting ebook (with supported format) from calibre to Kindle works on calibre ebook reader, but not on Kindle.</p>
+
+<p>My approach is to modify the KpRoman fonts so that these ligatures are considered as “normal” ligatures, which are enabled by default.</p>
+
+<h2 id="fonts-modification-with-fontforge">Fonts Modification with <a href="https://github.com/fontforge/fontforge">FontForge</a>.</h2>
+
+<p>FontForge provide utilities to edit fonts. For our purpose, modification of some LUT (just called “Lookup” here) is needed. <code class="language-plaintext highlighter-rouge">Element -&gt; FontInfo... -&gt; Lookups</code> contains various tables. Table <code class="language-plaintext highlighter-rouge">liga</code> is the one for “normal” ligatures, and table <code class="language-plaintext highlighter-rouge">dlig</code> is the one for “ct” “st” ligatures.</p>
+
+<p>There are already five rules in <code class="language-plaintext highlighter-rouge">liga</code>, which are:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ﬀ &lt;- f f
+ﬃ &lt;- f f i
+ﬄ &lt;- f f l
+ﬁ &lt;- f i
+ﬂ &lt;- f l
+</code></pre></div></div>
+
+<p>I presume these are rules applied during the rendering process. Upon detection of corresponding inputs, combination of characters are replaced by the character on the left, which has their special render pattern, producing the ligature effect<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup>. By appending rules from <code class="language-plaintext highlighter-rouge">dlig</code> LUT, we now have seven rules:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ﬀ &lt;- f f
+ﬃ &lt;- f f i
+ﬄ &lt;- f f l
+ﬁ &lt;- f i
+ﬂ &lt;- f l
+c_t &lt;- c t
+s_t &lt;- s t
+</code></pre></div></div>
+
+<p>(“c_t” and “s_t” are notations for representing corresponding ligatures. It seems “ct” does not have its own Unicode character, whereas “st” does (<code class="language-plaintext highlighter-rouge">ﬆ</code>).)</p>
+
+<p>After modification, we only need to export the modified fonts and use them in Kindle. Some extra cares should be taken, as FontForge did send several warnings while exporting fonts.</p>
+
+<h2 id="result">Result</h2>
+
+<p>Following the process one can have the modified fonts installed on Kindle. The one I modified (used in this page) can be found on this page (tautology it is); pressing F12 and it is available somewhere.</p>
+
+<h2 id="acknowledgement">Acknowledgement</h2>
+
+<p><code class="language-plaintext highlighter-rouge">kpfonts</code> is designed by <a href="https://ctan.org/author/caignaert">Christophe Caignaert</a>. <code class="language-plaintext highlighter-rouge">kpfonts-otf</code> is maintained by <a href="kpfonts-otf">Daniel Flipo</a>. I feel very lucky: thanks to their kindness, I am able to do some hacks to make these ligatures appear on my Kindle, despite knowing nothing about typography or font design.</p>
+
+<hr />
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+      <p>How the replacement process actually work is beyond this article’s concern, but it does have some interesting patterns, rending ligatures like “fffi”. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>]]></content><author><name></name></author><category term="Typography" /><summary type="html"><![CDATA[]]></summary></entry><entry><title type="html">first post</title><link href="http://localhost:4000/dev/2025/08/29/first-post.html" rel="alternate" type="text/html" title="first post" /><published>2025-08-29T04:00:00+08:00</published><updated>2025-08-29T04:00:00+08:00</updated><id>http://localhost:4000/dev/2025/08/29/first-post</id><content type="html" xml:base="http://localhost:4000/dev/2025/08/29/first-post.html"><![CDATA[<p>This is my first post, which serves as a test post, testing if the Jekyll works nicely with GitHub Pages.</p>]]></content><author><name></name></author><category term="DEV" /><summary type="html"><![CDATA[This is my first post, which serves as a test post, testing if the Jekyll works nicely with GitHub Pages.]]></summary></entry><entry><title type="html">C：从 “hello world” 程序开始</title><link href="http://localhost:4000/tech/2025/08/29/hello-c.html" rel="alternate" type="text/html" title="C：从 “hello world” 程序开始" /><published>2025-08-29T04:00:00+08:00</published><updated>2025-08-29T04:00:00+08:00</updated><id>http://localhost:4000/tech/2025/08/29/hello-c</id><content type="html" xml:base="http://localhost:4000/tech/2025/08/29/hello-c.html"><![CDATA[<p>这篇文章是本人在<a href="gcores.com">机核网</a>投稿的作品。考虑到本人的社会工程学实践，机核网用户并不知道本人的名字，看到这篇文章的读者也请不要将本人的名字在论坛分享。如果对本人的著作权有所怀疑，还请在机核网站内向文章的作者发私信确认。</p>
 
 <p>原文写于2024年12月20日，于2025年8月28日转载于此。重新对文章进行了针对 markdown 的排版。</p>
 

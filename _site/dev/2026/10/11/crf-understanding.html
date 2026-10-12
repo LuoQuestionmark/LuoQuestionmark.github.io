@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>理解 Conditional Random Field (CRF) | Wenhao Luo’s Personal Site</title>
+<meta name="generator" content="Jekyll v3.9.0" />
+<meta property="og:title" content="理解 Conditional Random Field (CRF)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This post is written in Chinese, as it attacks a problem of Chinese language processing." />
+<meta property="og:description" content="This post is written in Chinese, as it attacks a problem of Chinese language processing." />
+<link rel="canonical" href="http://localhost:4000/dev/2026/10/11/crf-understanding.html" />
+<meta property="og:url" content="http://localhost:4000/dev/2026/10/11/crf-understanding.html" />
+<meta property="og:site_name" content="Wenhao Luo’s Personal Site" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-10-11T20:30:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="理解 Conditional Random Field (CRF)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-10-11T20:30:00+08:00","datePublished":"2026-10-11T20:30:00+08:00","description":"This post is written in Chinese, as it attacks a problem of Chinese language processing.","headline":"理解 Conditional Random Field (CRF)","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/dev/2026/10/11/crf-understanding.html"},"url":"http://localhost:4000/dev/2026/10/11/crf-understanding.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Wenhao Luo&apos;s Personal Site" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Wenhao Luo&#39;s Personal Site</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a><a class="page-link" href="/experiment/">Experiment</a><a class="page-link" href="/suivant-next/">Suivant / Next</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">理解 Conditional Random Field (CRF)</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2026-10-11T20:30:00+08:00" itemprop="datePublished">Oct 11, 2026
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>This post is written in Chinese, as it attacks a problem of Chinese language processing.</p>
+
+<h2 id="前言">前言</h2>
+
+<p>本文是<a href="./2026-09-10-defeat-by-ctbparser.md">上一篇文章</a>的后续. 在 <code class="language-plaintext highlighter-rouge">ctbparser</code> 的实现中, 无法被轻易修改的部分就是它的 POS tagger; 它正是使用 Conditional Random Field 的技术实现的. 本文记载作者对这一算法的了解, 基于 Peng et als. 2004年的论文(后文称”2004论文”)<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup> 和 NLTK 库中的<a href="https://www.nltk.org/_modules/nltk/tag/crf.html">相关实现</a>.</p>
+
+<h2 id="conditional-random-field">Conditional Random Field</h2>
+
+<p>条件随机场 (條件隨機域, Conditional Random Field) 是一种处理序列输入的算法<sup id="fnref:2" role="doc-noteref"><a href="#fn:2" class="footnote" rel="footnote">2</a></sup>. 目前能找到的最早的文章是2001年 University of Pennsylvania<sup id="fnref:3" role="doc-noteref"><a href="#fn:3" class="footnote" rel="footnote">3</a></sup> 由 John Lafferty, Andrew McCallum 和 Fernando Pereira 三人发表的文章(后文称”2001论文”), 标题为 Conditional Random Fields: Probabilistic Models
+for Segmenting and Labeling Sequence Data. 设计之初就考虑到了处理文字序列, POS tagging 问题. 注意到作者之一的 McCallum 也是2004论文的作者. 作者称 CRF 是对 Maximum-entropy Markov model (MEMM) 的改进. 原文为:</p>
+
+<blockquote>
+  <p>This paper introduces conditional random fields (CRFs), a sequence modeling framework that has all the advantages of MEMMs but also solves the label bias problem in a principled way.</p>
+</blockquote>
+
+<p>对于 label bias problem 的定义可以参见2001论文. 在此不再详述.</p>
+
+<h3 id="定义">定义</h3>
+
+<p>这里依然引用2001论文的定义:</p>
+
+<blockquote>
+  <p><strong>Definition</strong>. Let $G = (V, E)$ be a graph such that $\mathbf{Y} = (\mathbf{Y}<em>v)</em>{v \in V}$ , so that $\mathbf{Y}$ is indexed by the vertices of $G$. Then $(\mathbf{X}, \mathbf{Y})$ is a <em>conditional random field</em> in case, when conditioned on X, the random variables $\mathbf{Y}_v$ obey the Markov property with respect to the graph: $p(\mathbf{Y}_v \mid \mathbf{X}, \mathbf{Y}_w, w \neq v) = p(\mathbf{Y}_v \mid \mathbf{X}, \mathbf{Y}_w, w \sim v)$, where $w \sim v$ means that w and v are neighbors in G.</p>
+</blockquote>
+
+<p>对于中文切分的问题, $\mathbf X$ 是原文, $\mathbf Y$ 则是对应的切分标记 (切分或不切分); 对于 POS tagging 的问题, 则 $\mathbf X$ 是词汇串, $\mathbf Y$ 为词性标记. 无论对于哪种问题, 这一模型主要希望解决的问题是找到给定的序列 $\mathbf X$ 的最佳标记 $\mathbf Y$.</p>
+
+<p>就我个人的理解而言, $p(\mathbf{Y}<em>v \mid \mathbf{X}, \mathbf{Y}_w, w \neq v) = p(\mathbf{Y}_v \mid \mathbf{X}, \mathbf{Y}_w, w \sim v)$ 保证了”上下文无关”的性质: 对于一个 $\mathbf X$ 的一个标记 $\mathbf Y$, 它的标记仅仅和句子 $\mathbf X$, 以及上下文的标记 $\mathbf Y</em>{neigh}$ 有关.</p>
+
+<h3 id="应用">应用</h3>
+
+<p>2004论文的公式 (1) 给出了序列和标记的关系 (相比于2001论文, 使用了小写字母而非大写字母表示序列):</p>
+
+\[P_\Lambda (\mathbf y \mid \mathbf x) = \frac{1}{Z_x}{exp\big( \sum^T_{t=1} \sum_k {\lambda_k f_k(y_{t - 1}, y_t,\mathbf x, t)} \big)}\]
+
+<p>(为了上下文的一致性, 在后文中仅使用小写字母表示序列.)</p>
+
+<p>这里, $f$ 是 feature function. 下标 $k$ 暗示复数个 feature. 用 NLTK 的实现举例, 对于英文词性标注, 默认的特征有:</p>
+
+<blockquote>
+  <ul>
+    <li>Current word</li>
+  </ul>
+</blockquote>
+
+<p>$f(y_{t-1}, y_t, \mathbf x, t) = x_t$</p>
+
+<blockquote>
+  <ul>
+    <li>is it capitalized?</li>
+  </ul>
+</blockquote>
+
+<p>$f(y_{t-1}, y_t, \mathbf x, t) = is_cap(x_0)$</p>
+
+<blockquote>
+  <ul>
+    <li>Does it have punctuation?</li>
+  </ul>
+</blockquote>
+
+<p>$f(y_{t-1}, y_t, \mathbf x, t) = any(is_punc(x_i))$</p>
+
+<blockquote>
+  <ul>
+    <li>Does it have a number?</li>
+  </ul>
+</blockquote>
+
+<p>$f(y_{t-1}, y_t, \mathbf x, t) = any(is_num(x_i))$</p>
+
+<blockquote>
+  <ul>
+    <li>Suffixes up to length 3</li>
+  </ul>
+</blockquote>
+
+<p>$f(y_{t-1}, y_t, \mathbf x, t) = suffix(x_{t})$</p>
+
+<p>feature function 是需要<em>预先定义</em>的. 2004论文的实现建议 $f$ “often binary-valued, but can be real-valued”. 在给定 $(\mathbf x, \mathbf y)$ 和 $t$ 的情况下, 每个特征函数的数值是固定的.</p>
+
+<p>相反, $\lambda_k$ 的值是需要<em>学习</em>的. 训练模型的过程就是为每个 feature function $f_k$ 找到对应的 $\lambda_k$, 即权重.</p>
+
+<p>双重求和 $\sum_{t=1}^T{\sum_k}$ 是评估<em>句子构建可能性</em>的求和. 语义上说, 它计算的是特定序列 $\mathbf y$ 存在的可能性 (尚未正则化). $\sum_k$ 评估所有可能的从 $y_{t - 1}$ 到 $y_t$ 的过程. 求和 $\sum_{t=1}^T$ 计算了 $y_0 y_1 \dots y_{T}$ (即 $\mathbf y$) 的过程.</p>
+
+<p>${Z_c}$是正则化的参数, 它是基于已知句子 $\mathbf x$ 和 feature function 计算的. 对于一组定义好的 feature function $(f_i)<em>{i \in [1, k]}$ 和对应的权重 $(\lambda_i)</em>{i \in [1, k]}$, 对于给定的句子 $\mathbf x$, 所有<em>可能的</em>标记序列 $\mathbf y_p$ 都能够计算对应的值</p>
+
+\[z_p = {exp\big( \sum^T_{t=1} \sum_k {\lambda_k f_k(y_{t - 1}, y_t,\mathbf x, t)} \big)}\]
+
+<p>标记序列 $\mathbf y_p$ 是的 $\mathbf x$ 的正确标记的概率为 $P(\mathbf y_p \mid \mathbf x) = \frac{z_p}{\sum_i z_i}$. 换言之, $Z_c = \sum {z_i}$.</p>
+
+<h3 id="训练和预测">训练和预测</h3>
+
+<p>训练模型的过程, 如同上文提到的, 是找到一系列预先定义的 feature functions 的权重 $\lambda$. 反过来说, 模型的预测则是在知道 feature functions 的 $\lambda$ 值的情况下, 为每个句子 $\mathbf x$ 找到最可能的标记序列 $\mathbf y$.</p>
+
+<p>对于训练的直观的理解是这样的. 对每一个定义的 feature, 对于训练集来说, 特征实际出现的次数 (即有 $y_{t-1} y_t$) 应当和特征出现的期望一样. 2004年论文定义了概率分布 $P_\Lambda (\mathbf y \mid \mathbf x)$ 对 $\lambda$ 的偏微分:</p>
+
+\[\frac{\partial {P_\Lambda (\mathbf y \mid \mathbf x)}}{\partial \lambda_k} = \sum_{i, t}{f_k(y_{t - 1}, y^{(i)}_t, \mathbf{x}^{(i)}, t)} -
+\sum_{i, \mathbf y, t}{P_\Lambda(\mathbf y \mid \mathbf{x}^{(i)})f_k(y_{t - 1}, y_t, \mathbf{x}^{(i)}, t)}\]
+
+<p>其中第一项是 feature 实际出现在训练集中的次数 (对于每个句子 $i$, 每两个相邻的标记 $(t, t+1)$); 第二项是这一 feature 在当前模型中出现的期望.</p>
+
+<p>它的 log-likelihood (似然函数的对数?) 定义如下:
+\(L_\Lambda = \sum_{i}{\\log{P_\Lambda(\mathbf y_i \mid \mathbf x_i)}}\)</p>
+
+<p>另外, 可以对比2001论文中相关的公式 (这里的 $e_i$ 对应2001论文的 “edge feature”, 对应的还有 “vertex feature”. 按原文, “The equations for vertex feature updates $\sigma_{μk}$ have similar form”):</p>
+
+\[\~E[f_k] \overset{\mathrm{def}}{=} \sum_{\mathbf x, \mathbf y} {\~p(\mathbf x, \mathbf y) \sum_{i=1}^{n+1}{f_k(e_i, \mathbf y \mid_{e_i}, \mathbf x)}}\]
+
+<h2 id="检验-nltk-实现">检验 NLTK 实现</h2>
+
+<p>这一部分是在尝试理解 NLTK 的相关实现. 发现实际上嵌套的层数很多, 最后理解下来还是比较困难.</p>
+
+<h3 id="nltk-pycrfsuite-crfsuite">NLTK, <code class="language-plaintext highlighter-rouge">pycrfsuite</code>, CRFSuite</h3>
+
+<p>如前文提到的, NLTK 关于 CRF 的实现在<a href="https://www.nltk.org/_modules/nltk/tag/crf.html">这里</a>. 值得一提的是, NLTK 此模组的注释是 “A module for POS tagging using CRFSuite”. 这里检验的实际是对应的模组 <code class="language-plaintext highlighter-rouge">pycrfsuite</code> 的相关实现, 后者是 Python 界面的 <code class="language-plaintext highlighter-rouge">CRFsuite</code>. 至于 <code class="language-plaintext highlighter-rouge">CRFSuite</code> 可以在 <a href="https://github.com/chokkan/crfsuite/">GitHub</a> 找到. 它的作者 Naoaki Okazaki 的网站相关的内容在<a href="https://www.chokkan.org/software/crfsuite/">这里</a>.</p>
+
+<blockquote>
+  <p>python-crfsuite is a python binding to CRFsuite.</p>
+</blockquote>
+
+<p>另外, 对于<a href="./2026-09-10-defeat-by-ctbparser.md">上一篇文章</a>提到的 <code class="language-plaintext highlighter-rouge">ctbparser</code>, 其作者使用的 <code class="language-plaintext highlighter-rouge">crfparser</code> 则可以在 <a href="https://sourceforge.net/projects/crfparser/">sourceforge</a> 上找到.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># NLTK CRF 的训练函数. 这里直接调用了 pycrfsuite 的 train 函数.
+</span><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
+    <span class="s">"""
+    Train the CRF tagger using CRFSuite
+    :params train_data : is the list of annotated sentences.
+    :type train_data : list (list(tuple(str,str)))
+    :params model_file : the model will be saved to this file.
+
+    """</span>
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">pycrfsuite</span><span class="p">.</span><span class="n">Trainer</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_verbose</span><span class="p">)</span>
+    <span class="n">trainer</span><span class="p">.</span><span class="n">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_training_options</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">train_data</span><span class="p">:</span>
+        <span class="n">tokens</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">sent</span><span class="p">)</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">_feature_func</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">))]</span>
+        <span class="n">trainer</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+    <span class="c1"># Now train the model, the output should be model_file
+</span>    <span class="n">trainer</span><span class="p">.</span><span class="n">train</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+    <span class="c1"># Save the model file
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">set_model_file</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="crfsuite-训练函数">CRFSuite 训练函数</h3>
+
+<p>CRFSuite 提供了多个训练方法. 2004论文提到的 BFGS 方法对应的源文件在<a href="https://github.com/chokkan/crfsuite/blob/master/lib/crf/src/train_lbfgs.c">这里</a>. CRFSuite 的作者 Okazaki 用了他名下的 lbfgs 库<sup id="fnref:4" role="doc-noteref"><a href="#fn:4" class="footnote" rel="footnote">4</a></sup>, 定义了相关的参数传入.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;lbfgs.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// 其它代码...</span>
+
+<span class="n">lbret</span> <span class="o">=</span> <span class="n">lbfgs</span><span class="p">(</span>
+    <span class="n">K</span><span class="p">,</span>
+    <span class="n">w</span><span class="p">,</span>
+    <span class="nb">NULL</span><span class="p">,</span>
+    <span class="n">lbfgs_evaluate</span><span class="p">,</span>
+    <span class="n">lbfgs_progress</span><span class="p">,</span>
+    <span class="o">&amp;</span><span class="n">lbfgsi</span><span class="p">,</span>
+    <span class="o">&amp;</span><span class="n">lbfgsparam</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<p>摘抄头文件 <code class="language-plaintext highlighter-rouge">lbfgs.h</code> 对应的函数声明如下:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Start a L-BFGS optimization.
+ *
+ *  @param  n           The number of variables.
+ *  @param  x           The array of variables. A client program can set
+ *                      default values for the optimization and receive the
+ *                      optimization result through this array. This array
+ *                      must be allocated by ::lbfgs_malloc function
+ *                      for libLBFGS built with SSE/SSE2 optimization routine
+ *                      enabled. The library built without SSE/SSE2
+ *                      optimization does not have such a requirement.
+ *  @param  ptr_fx      The pointer to the variable that receives the final
+ *                      value of the objective function for the variables.
+ *                      This argument can be set to \c NULL if the final
+ *                      value of the objective function is unnecessary.
+ *  @param  proc_evaluate   The callback function to provide function and
+ *                          gradient evaluations given a current values of
+ *                          variables. A client program must implement a
+ *                          callback function compatible with \ref
+ *                          lbfgs_evaluate_t and pass the pointer to the
+ *                          callback function.
+ *  @param  proc_progress   The callback function to receive the progress
+ *                          (the number of iterations, the current value of
+ *                          the objective function) of the minimization
+ *                          process. This argument can be set to \c NULL if
+ *                          a progress report is unnecessary.
+ *  @param  instance    A user data for the client program. The callback
+ *                      functions will receive the value of this argument.
+ *  @param  param       The pointer to a structure representing parameters for
+ *                      L-BFGS optimization. A client program can set this
+ *                      parameter to \c NULL to use the default parameters.
+ *                      Call lbfgs_parameter_init() function to fill a
+ *                      structure with the default values.
+ *  @retval int         The status code. This function returns zero if the
+ *                      minimization process terminates without an error. A
+ *                      non-zero value indicates an error.
+ */</span>
+<span class="kt">int</span> <span class="nf">lbfgs</span><span class="p">(</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">,</span>
+    <span class="n">lbfgsfloatval_t</span> <span class="o">*</span><span class="n">x</span><span class="p">,</span>
+    <span class="n">lbfgsfloatval_t</span> <span class="o">*</span><span class="n">ptr_fx</span><span class="p">,</span>
+    <span class="n">lbfgs_evaluate_t</span> <span class="n">proc_evaluate</span><span class="p">,</span>
+    <span class="n">lbfgs_progress_t</span> <span class="n">proc_progress</span><span class="p">,</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">instance</span><span class="p">,</span>
+    <span class="n">lbfgs_parameter_t</span> <span class="o">*</span><span class="n">param</span>
+    <span class="p">);</span>
+</code></pre></div></div>
+
+<p>可以看到最重要的部分是对 <code class="language-plaintext highlighter-rouge">proc_evaluate</code> 函数的定义. 该函数给出用于梯度下降的函数. <a href="https://github.com/chokkan/liblbfgs/blob/master/include/lbfgs.h">这里</a>给出了对应类型 <code class="language-plaintext highlighter-rouge">lbfgs_evaluate_t</code> 的声明. 如下所示:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Callback interface to provide objective function and gradient evaluations.
+ *
+ *  The lbfgs() function call this function to obtain the values of objective
+ *  function and its gradients when needed. A client program must implement
+ *  this function to evaluate the values of the objective function and its
+ *  gradients, given current values of variables.
+ *
+ *  @param  instance    The user data sent for lbfgs() function by the client.
+ *  @param  x           The current values of variables.
+ *  @param  g           The gradient vector. The callback function must compute
+ *                      the gradient values for the current variables.
+ *  @param  n           The number of variables.
+ *  @param  step        The current step of the line search routine.
+ *  @retval lbfgsfloatval_t The value of the objective function for the current
+ *                          variables.
+ */</span>
+<span class="k">typedef</span> <span class="nf">lbfgsfloatval_t</span> <span class="p">(</span><span class="o">*</span><span class="n">lbfgs_evaluate_t</span><span class="p">)(</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">instance</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">lbfgsfloatval_t</span> <span class="o">*</span><span class="n">x</span><span class="p">,</span>
+    <span class="n">lbfgsfloatval_t</span> <span class="o">*</span><span class="n">g</span><span class="p">,</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">n</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">lbfgsfloatval_t</span> <span class="n">step</span>
+    <span class="p">);</span>
+</code></pre></div></div>
+
+<p>结合在 <code class="language-plaintext highlighter-rouge">train_lbfgs.c</code> 中对函数 <code class="language-plaintext highlighter-rouge">proc_evaluate</code> 的实现:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="n">lbfgsfloatval_t</span> <span class="nf">lbfgs_evaluate</span><span class="p">(</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">instance</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">lbfgsfloatval_t</span> <span class="o">*</span><span class="n">x</span><span class="p">,</span>
+    <span class="n">lbfgsfloatval_t</span> <span class="o">*</span><span class="n">g</span><span class="p">,</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">n</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">lbfgsfloatval_t</span> <span class="n">step</span>
+    <span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="n">floatval_t</span> <span class="n">f</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="mi">0</span><span class="p">.;</span>
+    <span class="n">lbfgs_internal_t</span> <span class="o">*</span><span class="n">lbfgsi</span> <span class="o">=</span> <span class="p">(</span><span class="n">lbfgs_internal_t</span><span class="o">*</span><span class="p">)</span><span class="n">instance</span><span class="p">;</span>
+    <span class="n">encoder_t</span> <span class="o">*</span><span class="n">gm</span> <span class="o">=</span> <span class="n">lbfgsi</span><span class="o">-&gt;</span><span class="n">gm</span><span class="p">;</span>
+    <span class="n">dataset_t</span> <span class="o">*</span><span class="n">trainset</span> <span class="o">=</span> <span class="n">lbfgsi</span><span class="o">-&gt;</span><span class="n">trainset</span><span class="p">;</span>
+
+    <span class="cm">/* Compute the objective value and gradients. */</span>
+    <span class="n">gm</span><span class="o">-&gt;</span><span class="n">objective_and_gradients_batch</span><span class="p">(</span><span class="n">gm</span><span class="p">,</span> <span class="n">trainset</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">);</span>
+
+    <span class="cm">/* L2 regularization. */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="n">lbfgsi</span><span class="o">-&gt;</span><span class="n">c2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">const</span> <span class="n">floatval_t</span> <span class="n">c22</span> <span class="o">=</span> <span class="n">lbfgsi</span><span class="o">-&gt;</span><span class="n">c2</span> <span class="o">*</span> <span class="mi">2</span><span class="p">.;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="n">c22</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+            <span class="n">norm</span> <span class="o">+=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+        <span class="p">}</span>
+        <span class="n">f</span> <span class="o">+=</span> <span class="p">(</span><span class="n">lbfgsi</span><span class="o">-&gt;</span><span class="n">c2</span> <span class="o">*</span> <span class="n">norm</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">f</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>这里, “L2 regularization” 对应的是2004论文中避免过拟合的公式(论文公式(2)). <code class="language-plaintext highlighter-rouge">gm</code> 是结构体 <code class="language-plaintext highlighter-rouge">struct tag_encoder</code> 的别名, 而 <code class="language-plaintext highlighter-rouge">objective_and_gradients_batch</code> 则是它的一个函数指针. <a href="https://github.com/chokkan/crfsuite/blob/master/lib/crf/src/crfsuite_train.c">相关的代码</a>显示初始化由 <code class="language-plaintext highlighter-rouge">crf1d_create_encoder</code> 中完成:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="n">crfsuite_train_internal_t</span><span class="o">*</span> <span class="nf">crfsuite_train_new</span><span class="p">(</span><span class="kt">int</span> <span class="n">ftype</span><span class="p">,</span> <span class="kt">int</span> <span class="n">algorithm</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">crfsuite_train_internal_t</span> <span class="o">*</span><span class="n">tr</span> <span class="o">=</span> <span class="p">(</span><span class="n">crfsuite_train_internal_t</span><span class="o">*</span><span class="p">)</span><span class="n">calloc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">crfsuite_train_internal_t</span><span class="p">));</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">tr</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">tr</span><span class="o">-&gt;</span><span class="n">lg</span> <span class="o">=</span> <span class="p">(</span><span class="n">logging_t</span><span class="o">*</span><span class="p">)</span><span class="n">calloc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">logging_t</span><span class="p">));</span>
+        <span class="n">tr</span><span class="o">-&gt;</span><span class="n">params</span> <span class="o">=</span> <span class="n">params_create_instance</span><span class="p">();</span>
+        <span class="n">tr</span><span class="o">-&gt;</span><span class="n">feature_type</span> <span class="o">=</span> <span class="n">ftype</span><span class="p">;</span>
+        <span class="n">tr</span><span class="o">-&gt;</span><span class="n">algorithm</span> <span class="o">=</span> <span class="n">algorithm</span><span class="p">;</span>
+
+        <span class="n">tr</span><span class="o">-&gt;</span><span class="n">gm</span> <span class="o">=</span> <span class="n">crf1d_create_encoder</span><span class="p">();</span> <span class="c1">// 这里!</span>
+        <span class="n">tr</span><span class="o">-&gt;</span><span class="n">gm</span><span class="o">-&gt;</span><span class="n">exchange_options</span><span class="p">(</span><span class="n">tr</span><span class="o">-&gt;</span><span class="n">gm</span><span class="p">,</span> <span class="n">tr</span><span class="o">-&gt;</span><span class="n">params</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+        <span class="cm">/* Initialize parameters for the training algorithm. */</span>
+        <span class="k">switch</span> <span class="p">(</span><span class="n">algorithm</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">TRAIN_LBFGS</span><span class="p">:</span>
+            <span class="n">crfsuite_train_lbfgs_init</span><span class="p">(</span><span class="n">tr</span><span class="o">-&gt;</span><span class="n">params</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="n">TRAIN_L2SGD</span><span class="p">:</span>
+            <span class="n">crfsuite_train_l2sgd_init</span><span class="p">(</span><span class="n">tr</span><span class="o">-&gt;</span><span class="n">params</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="n">TRAIN_AVERAGED_PERCEPTRON</span><span class="p">:</span>
+            <span class="n">crfsuite_train_averaged_perceptron_init</span><span class="p">(</span><span class="n">tr</span><span class="o">-&gt;</span><span class="n">params</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="n">TRAIN_PASSIVE_AGGRESSIVE</span><span class="p">:</span>
+            <span class="n">crfsuite_train_passive_aggressive_init</span><span class="p">(</span><span class="n">tr</span><span class="o">-&gt;</span><span class="n">params</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="n">TRAIN_AROW</span><span class="p">:</span>
+            <span class="n">crfsuite_train_arow_init</span><span class="p">(</span><span class="n">tr</span><span class="o">-&gt;</span><span class="n">params</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">tr</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>进一步发现对应的定义为函数 <code class="language-plaintext highlighter-rouge">encoder_objective_and_gradients_batch</code>:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="kt">int</span> <span class="nf">encoder_objective_and_gradients_batch</span><span class="p">(</span><span class="n">encoder_t</span> <span class="o">*</span><span class="n">self</span><span class="p">,</span> <span class="n">dataset_t</span> <span class="o">*</span><span class="n">ds</span><span class="p">,</span> <span class="k">const</span> <span class="n">floatval_t</span> <span class="o">*</span><span class="n">w</span><span class="p">,</span> <span class="n">floatval_t</span> <span class="o">*</span><span class="n">f</span><span class="p">,</span> <span class="n">floatval_t</span> <span class="o">*</span><span class="n">g</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="n">floatval_t</span> <span class="n">logp</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">logl</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">crf1de_t</span> <span class="o">*</span><span class="n">crf1de</span> <span class="o">=</span> <span class="p">(</span><span class="n">crf1de_t</span><span class="o">*</span><span class="p">)</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">internal</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">N</span> <span class="o">=</span> <span class="n">ds</span><span class="o">-&gt;</span><span class="n">num_instances</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">K</span> <span class="o">=</span> <span class="n">crf1de</span><span class="o">-&gt;</span><span class="n">num_features</span><span class="p">;</span>
+
+    <span class="cm">/*
+        Initialize the gradients with observation expectations.
+     */</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">K</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">crf1df_feature_t</span><span class="o">*</span> <span class="n">f</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">crf1de</span><span class="o">-&gt;</span><span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+        <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">freq</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/*
+        Set the scores (weights) of transition features here because
+        these are independent of input label sequences.
+     */</span>
+    <span class="n">crf1dc_reset</span><span class="p">(</span><span class="n">crf1de</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">,</span> <span class="n">RF_TRANS</span><span class="p">);</span>
+    <span class="n">crf1de_transition_score</span><span class="p">(</span><span class="n">crf1de</span><span class="p">,</span> <span class="n">w</span><span class="p">);</span>
+    <span class="n">crf1dc_exp_transition</span><span class="p">(</span><span class="n">crf1de</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">);</span>
+
+    <span class="cm">/*
+        Compute model expectations.
+     */</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">const</span> <span class="n">crfsuite_instance_t</span> <span class="o">*</span><span class="n">seq</span> <span class="o">=</span> <span class="n">dataset_get</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+
+        <span class="cm">/* Set label sequences and state scores. */</span>
+        <span class="n">crf1dc_set_num_items</span><span class="p">(</span><span class="n">crf1de</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">,</span> <span class="n">seq</span><span class="o">-&gt;</span><span class="n">num_items</span><span class="p">);</span>
+        <span class="n">crf1dc_reset</span><span class="p">(</span><span class="n">crf1de</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">,</span> <span class="n">RF_STATE</span><span class="p">);</span>
+        <span class="n">crf1de_state_score</span><span class="p">(</span><span class="n">crf1de</span><span class="p">,</span> <span class="n">seq</span><span class="p">,</span> <span class="n">w</span><span class="p">);</span>
+        <span class="n">crf1dc_exp_state</span><span class="p">(</span><span class="n">crf1de</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">);</span>
+
+        <span class="cm">/* Compute forward/backward scores. */</span>
+        <span class="n">crf1dc_alpha_score</span><span class="p">(</span><span class="n">crf1de</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">);</span>
+        <span class="n">crf1dc_beta_score</span><span class="p">(</span><span class="n">crf1de</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">);</span>
+        <span class="n">crf1dc_marginals</span><span class="p">(</span><span class="n">crf1de</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">);</span>
+
+        <span class="cm">/* Compute the probability of the input sequence on the model. */</span>
+        <span class="n">logp</span> <span class="o">=</span> <span class="n">crf1dc_score</span><span class="p">(</span><span class="n">crf1de</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">,</span> <span class="n">seq</span><span class="o">-&gt;</span><span class="n">labels</span><span class="p">)</span> <span class="o">-</span> <span class="n">crf1dc_lognorm</span><span class="p">(</span><span class="n">crf1de</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">);</span>
+        <span class="cm">/* Update the log-likelihood. */</span>
+        <span class="n">logl</span> <span class="o">+=</span> <span class="n">logp</span> <span class="o">*</span> <span class="n">seq</span><span class="o">-&gt;</span><span class="n">weight</span><span class="p">;</span>
+
+        <span class="cm">/* Update the model expectations of features. */</span>
+        <span class="n">crf1de_model_expectation</span><span class="p">(</span><span class="n">crf1de</span><span class="p">,</span> <span class="n">seq</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">seq</span><span class="o">-&gt;</span><span class="n">weight</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="o">*</span><span class="n">f</span> <span class="o">=</span> <span class="o">-</span><span class="n">logl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>尽管这个函数有足够多的注释, 我发现理解起来还是有困难. 不少的计算由 <code class="language-plaintext highlighter-rouge">crf1de-&gt;ctx</code> (context) 携带; 具体的计算步骤由形如 <code class="language-plaintext highlighter-rouge">crf1dc_*</code> 的函数实现. 其中关于 <code class="language-plaintext highlighter-rouge">logp</code> 和 <code class="language-plaintext highlighter-rouge">logl</code> 的计算应该对应之前的公式中对 $L_\Lambda$ 的计算; <code class="language-plaintext highlighter-rouge">g</code> 是 $\frac{\partial L_\Lambda}{\partial \lambda}$ 的列表.</p>
+
+<hr />
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+      <p>Peng, F., Feng, F., &amp; McCallum, A. (2004). Chinese segmentation and new word detection using conditional random fields. In COLING 2004: Proceedings of the 20th International Conference on Computational Linguistics (pp. 562-568). <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:2" role="doc-endnote">
+      <p>就我在 Google Scholar 上搜集的结果, “Conditional Random Fields” 在2001年该算法提出前有一个结果, 论文标题为 “Conditioned Stochastic Processes for Conditional Random Fields”. 探讨内容不同, 应为重名. <a href="#fnref:2" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:3" role="doc-endnote">
+      <p>另外, Chinese Treebank 项目最早正是在 UPenn 开始的. <a href="#fnref:3" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:4" role="doc-endnote">
+      <p>这个库的头文件则有如下说明: “This library is a C port of the FORTRAN implementation of Limited-memory Broyden-Fletcher-Goldfarb-Shanno (L-BFGS) method written by Jorge Nocedal. The original FORTRAN source code is available at: http://www.ece.northwestern.edu/~nocedal/lbfgs.html”. <a href="#fnref:4" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+  </div><a class="u-url" href="/dev/2026/10/11/crf-understanding.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Wenhao Luo&#39;s Personal Site</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Wenhao Luo&#39;s Personal Site</li><li><a class="u-email" href="mailto:wenhao-luo@outlook.com">wenhao-luo@outlook.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/LuoQuestionmark"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">LuoQuestionmark</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>This is my personal website hosting on GitHub.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

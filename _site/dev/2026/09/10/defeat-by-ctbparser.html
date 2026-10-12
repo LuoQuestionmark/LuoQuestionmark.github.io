@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Defeat by ctbparser | Wenhao Luo’s Personal Site</title>
+<meta name="generator" content="Jekyll v3.9.0" />
+<meta property="og:title" content="Defeat by ctbparser" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Where does it begin" />
+<meta property="og:description" content="Where does it begin" />
+<link rel="canonical" href="http://localhost:4000/dev/2026/09/10/defeat-by-ctbparser.html" />
+<meta property="og:url" content="http://localhost:4000/dev/2026/09/10/defeat-by-ctbparser.html" />
+<meta property="og:site_name" content="Wenhao Luo’s Personal Site" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-09-10T20:30:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Defeat by ctbparser" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-09-10T20:30:00+08:00","datePublished":"2026-09-10T20:30:00+08:00","description":"Where does it begin","headline":"Defeat by ctbparser","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/dev/2026/09/10/defeat-by-ctbparser.html"},"url":"http://localhost:4000/dev/2026/09/10/defeat-by-ctbparser.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Wenhao Luo&apos;s Personal Site" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Wenhao Luo&#39;s Personal Site</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a><a class="page-link" href="/experiment/">Experiment</a><a class="page-link" href="/suivant-next/">Suivant / Next</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Defeat by ctbparser</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2026-09-10T20:30:00+08:00" itemprop="datePublished">Sep 10, 2026
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h2 id="where-does-it-begin">Where does it begin</h2>
+
+<p>Recently I read an interesting book on NLP, <em>Semantics</em> by A. Kornai. A draft version of this book can by found on his <a href="https://kornai.com/Draft/sem.pdf">site</a>. This book, at a moment mentioned a <a href="https://www.aclweb.org/aclwiki/index.php?title=List_of_resources_by_language">list of resources by language</a>, which led me to <code class="language-plaintext highlighter-rouge">ctbparser</code>, that is <a href="https://code.google.com/archive/p/ctbparser/">available</a> on Google Code Archive. It is lastly updated in 2010 and designed with GB2312 encoding, so I figured if I can modernized this program with C++11 standard, and utf-8 encoding. As the title of this article suggested, I failed. Still, this article contains discoveries I found. Hopefully it will be useful for anyone else who share the interest.</p>
+
+<h2 id="current-status-of-the-repository">Current status of the repository</h2>
+
+<h3 id="general-information">General information</h3>
+
+<p>There is a clone of this repository on <a href="https://github.com/justintung/ctbparser">GitHub</a>. A very simple README.MD is provided. A slightly more detailed description can be found in <code class="language-plaintext highlighter-rouge">readme.html</code> and <code class="language-plaintext highlighter-rouge">readme_cn.html</code>. No manual is available.</p>
+
+<h3 id="compilation">Compilation</h3>
+
+<p>The code of the repository uses a simple “makefile” to compile the program <code class="language-plaintext highlighter-rouge">ctbparser</code>. It does not compile directly with today’s default configuration (at least in my case).</p>
+
+<p>A few tweaks should be applied to make it compile correctly:</p>
+
+<ul>
+  <li>add <code class="language-plaintext highlighter-rouge">#include &lt;cstring&gt;</code> to <code class="language-plaintext highlighter-rouge">freelist.h</code> (fix <code class="language-plaintext highlighter-rouge">memcpy</code> function call);</li>
+  <li>update syntax at <code class="language-plaintext highlighter-rouge">crf.cpp:1584</code>, instead of <code class="language-plaintext highlighter-rouge">make_pair</code>, use curly brackets syntax:
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// from</span>
+<span class="n">old2new</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">make_pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">,</span> <span class="n">new_mapping_size</span><span class="p">));</span>
+<span class="c1">// to</span>
+<span class="n">old2new</span><span class="p">.</span><span class="n">insert</span><span class="p">({</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">,</span> <span class="n">new_mapping_size</span><span class="p">});</span>
+</code></pre></div>    </div>
+  </li>
+  <li>add <code class="language-plaintext highlighter-rouge">#include &lt;unistd.h&gt;</code> to <code class="language-plaintext highlighter-rouge">crf.cpp</code>, <code class="language-plaintext highlighter-rouge">ctbparser.cpp</code>, <code class="language-plaintext highlighter-rouge">crfparser.cpp</code> (fix <code class="language-plaintext highlighter-rouge">access</code> <code class="language-plaintext highlighter-rouge">unlink</code> function calls)<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup></li>
+  <li>(optional) add <code class="language-plaintext highlighter-rouge">-std=c++11</code> to <code class="language-plaintext highlighter-rouge">CFLAGS</code> in makefile;</li>
+  <li>(optional) remove the linked library <code class="language-plaintext highlighter-rouge">-lnsl</code> from the makefile, as it is not needed and not a library installed by default.</li>
+</ul>
+
+<p>If it is compiled successfully, it should work correctly under GB2312 encoding. However, it does not work correctly with utf-8 encoding. As I will mention in a moment, the program is built with this specific encoding in mind. It is hard, if not impossible, to adapt the program for other encoding in a simple way.</p>
+
+<h3 id="dependencies">Dependencies</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">readme.html</code> (and its Chinese version) mentioned:</p>
+
+<blockquote>
+  <p>Word segmentation and POS tagging models are trained using <a href="https://sourceforge.net/projects/pocket-crf-1/files/">Pocket CRF 0.47</a>, and the dependency parsing model are trained using <a href="https://crfparser.sourceforge.net/">crfparser 0.10</a>.</p>
+</blockquote>
+
+<p>The way these dependencies work is, however, different to today’s practice. Instead of using package manager and referencing them verbally, source files are directly copied and modified. <code class="language-plaintext highlighter-rouge">Pocket CRF</code> is developed by the same developer of this repository, providing the files like <code class="language-plaintext highlighter-rouge">crf.h</code> and <code class="language-plaintext highlighter-rouge">crfparser.h</code>. And <code class="language-plaintext highlighter-rouge">Pocket CRF</code> is based on <code class="language-plaintext highlighter-rouge">crfparser</code>, which has its own version of <code class="language-plaintext highlighter-rouge">crf.h</code>, <code class="language-plaintext highlighter-rouge">crfparser.h</code>, and other relavant files.</p>
+
+<h2 id="the-hard-coded-gb2312-encoding">The hard-coded GB2312 encoding</h2>
+
+<p>Various implementations of the program <code class="language-plaintext highlighter-rouge">ctbparser</code> depend on the GB2312 encoding. Some of these can be adapted to utf-8, and some are not.</p>
+
+<h3 id="case-study-the-trie-class">Case study: the <code class="language-plaintext highlighter-rouge">Trie</code> class</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">TrieNode</code> defines a node from the <code class="language-plaintext highlighter-rouge">Trie</code> (prefix tree), which is used to store user-defined dictionary. <code class="language-plaintext highlighter-rouge">link</code> is a list of pointer that is initialized during node creation, with a fix size of pointer.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// declaration of structure</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">TrieNode</span><span class="p">{</span>
+	<span class="kt">int</span> <span class="n">k</span><span class="p">;</span> <span class="c1">//no null link number</span>
+	<span class="n">TrieNode</span> <span class="o">**</span><span class="n">link</span><span class="p">;</span> <span class="c1">//if no branch, link=NULL else *link[95]</span>
+	<span class="n">PWORDTYPE</span> <span class="n">wordptr</span><span class="p">;</span>
+<span class="p">}</span><span class="n">TRIENODE</span><span class="p">,</span> <span class="o">*</span> <span class="n">PTRIENODE</span><span class="p">;</span>
+
+<span class="c1">// initialization</span>
+
+<span class="n">p</span><span class="o">-&gt;</span><span class="n">link</span><span class="o">=</span><span class="p">(</span><span class="n">PTRIENODE</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="mi">95</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="n">PTRIENODE</span><span class="p">));</span>
+</code></pre></div></div>
+
+<p>The special size of 95 is based on the fact that (cite from <a href="https://en.wikipedia.org/wiki/GB_2312">Wikipedia</a>):</p>
+
+<blockquote>
+  <p>Characters in GB/T 2312 are arranged in a 94×94 grid […]</p>
+</blockquote>
+
+<p>With this configuration, each Chinese character can be represented by two nodes of <code class="language-plaintext highlighter-rouge">TrieNode</code>. Whereas utf-8 encodes character from 1 to 4 bytes, and cannot be represented to 95 branched per byte.</p>
+
+<p>Despite that, it is possible to create a different <code class="language-plaintext highlighter-rouge">Trie</code> structure to serve as a prefix tree for utf-8 encoding. For instance, I modified the structure by implementing a hashtable, and it worked:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="nc">trie_node_s</span> <span class="p">{</span>
+    <span class="n">trie_table_t</span> <span class="o">*</span><span class="n">table</span><span class="p">;</span>
+    <span class="n">word_type_t</span> <span class="o">*</span><span class="n">wordptr</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="nc">trie_table_s</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">table_count</span><span class="p">[</span><span class="n">TRIE_HASHTABLE_SIZE</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">table_size</span><span class="p">[</span><span class="n">TRIE_HASHTABLE_SIZE</span><span class="p">];</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">keys</span><span class="p">[</span><span class="n">TRIE_HASHTABLE_SIZE</span><span class="p">];</span>
+    <span class="n">trie_node_t</span> <span class="o">**</span><span class="n">values</span><span class="p">[</span><span class="n">TRIE_HASHTABLE_SIZE</span><span class="p">];</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h3 id="case-study-crfparser">Case study: <code class="language-plaintext highlighter-rouge">crfparser</code></h3>
+
+<p>I stuck with the module <code class="language-plaintext highlighter-rouge">crfparser</code>, which is used to separate and tag words with a pre-trained model. While it is possible to modify crfparser, the real problem is the “model” it used for the creation of tags. As the model is a binary file, changing its encoding does not make any sense; however, it is encoding specific and only reacts correctly with the GB2312 encoding characters.</p>
+
+<p>Opening the file <code class="language-plaintext highlighter-rouge">pos_model_l1</code> (used by the <code class="language-plaintext highlighter-rouge">crfparser</code>) with Codium, regardless its binary nature, the line 12 to 17 looks like this (as by default they are still interpreted as utf-8):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     0:����:
+     0:��ȫ\
+     0:��~
+     0:�����
+     0:���
+     0:���
+</code></pre></div></div>
+
+<p>By “reopen with GB2312 encoding”:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     0:安排:
+     0:安全\
+     0:按~
+     0:按照�
+     0:岸�
+     0:案�
+</code></pre></div></div>
+
+<p>It seems like the model file, despite being binary, still influenced by the GB2312 encoding. Giving that the training data of this model is not available with the repository, it is impossible to rebuild the model, which is essential for this program functionality.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>It is hard to make the program working with utf-8 encoding, as recreating the model used by <code class="language-plaintext highlighter-rouge">crfparser</code> is a difficult, as one need to understand the <code class="language-plaintext highlighter-rouge">crfparser</code> repo, and create a new model with utf-8 encoding. On the other hand, if one has to make the program work with utf-8 encoding, my suggestion is to wrap the entier program within a translation program.</p>
+
+<p>For example, imaging the following pseudo code:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">decode_string_utf8</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">utf8_in</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">utf8_out</span><span class="p">)</span> <span class="p">{</span>
+	<span class="kt">char</span> <span class="n">gb2312in</span><span class="p">[</span><span class="mi">10000</span><span class="p">],</span> <span class="n">gb2312out</span><span class="p">[</span><span class="mi">10000</span><span class="p">];</span>
+	<span class="n">utf8_gb2312</span><span class="p">(</span><span class="n">utf8_in</span><span class="p">,</span> <span class="n">gb2312in</span><span class="p">);</span>
+	<span class="n">decode_string</span><span class="p">(</span><span class="n">gb2312in</span><span class="p">,</span> <span class="n">gb2312out</span><span class="p">);</span>
+	<span class="n">gb2312_utf8</span><span class="p">(</span><span class="n">gb2312out</span><span class="p">,</span> <span class="n">utf8_out</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>As that is not my interest, I am here to accept my defeat.</p>
+
+<h2 id="appendix">Appendix</h2>
+
+<h3 id="modified-trie-class">Modified <code class="language-plaintext highlighter-rouge">Trie</code> class</h3>
+
+<p>As part of my implementation, I wrote a new version of <code class="language-plaintext highlighter-rouge">Trie</code> class for utf-8 characters. Here is my implementation:</p>
+
+<pre><code class="language-hpp">// trie.h
+
+#ifndef TRIE_H
+#define TRIE_H
+
+const int WORD_MAXLENGTH             = 1000;
+const int POS_MAXLENGTH              = 12;
+const int POS_FREQ_MAXLENGTH         = 5;
+const int TRIE_HASHTABLE_SIZE        = 128;
+const int TRIE_HASHTABLE_INIT_LENGTH = 1;
+
+typedef struct pos_freq_s {
+    char pos[POS_MAXLENGTH];
+    double freq;
+} pos_freq_t;
+
+typedef struct word_type_s {
+    char *word;
+    double freq; // sum of posfreq;
+    pos_freq_t posfreq[POS_FREQ_MAXLENGTH];
+} word_type_t;
+
+typedef struct trie_node_s trie_node_t;
+typedef struct trie_table_s trie_table_t;
+
+struct trie_node_s {
+    trie_table_t *table;
+    word_type_t *wordptr;
+};
+
+struct trie_table_s {
+    int table_count[TRIE_HASHTABLE_SIZE];
+    int table_size[TRIE_HASHTABLE_SIZE];
+    unsigned int *keys[TRIE_HASHTABLE_SIZE];
+    trie_node_t **values[TRIE_HASHTABLE_SIZE];
+};
+
+word_type_t *word_type_init(const char *word);
+void word_type_destroy(word_type_t *word);
+void word_type_update(word_type_t *word, const char *pos, double freq);
+
+trie_node_t *trie_node_init();
+void trie_node_destroy(trie_node_t *node);
+trie_node_t *trie_node_add(trie_node_t *node, const char *utf8_string,
+                           const char *utf8_rest, const char *pos, double freq);
+trie_node_t *trie_node_get(trie_node_t *node, const char *utf8_string);
+
+trie_table_t *trie_table_init();
+void trie_table_destroy(trie_table_t *table);
+trie_node_t *trie_table_add(trie_table_t *table, unsigned int key);
+trie_node_t *trie_table_get(trie_table_t *table, unsigned int key);
+
+class Trie {
+    private:
+    trie_node_t *root;
+
+    public:
+    Trie();
+    ~Trie();
+    bool load(const char *filename);
+    void insert(const char *word, const char *pos, double freq);
+    // void search(const char *word);
+    word_type_t *search(const char *word, trie_node_t *node = nullptr);
+
+    void get_best_pos(word_type_t *word, char *pos);
+    double get_freq(word_type_t *word, const char *pos = nullptr);
+    double get_freq(const char *word, const char *pos = nullptr);
+};
+#endif
+
+</code></pre>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// trie.cpp</span>
+
+<span class="cp">#include</span> <span class="cpf">"trie.h"</span><span class="cp">
+#include</span> <span class="cpf">"fun.h"</span><span class="cp">
+#include</span> <span class="cpf">&lt;cassert&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;cstdio&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;cstdlib&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;cstring&gt;</span><span class="cp">
+</span>
+<span class="c1">// Source - https://stackoverflow.com/a/12996028</span>
+<span class="c1">// Posted by Thomas Mueller, modified by community. See post 'Timeline' for</span>
+<span class="c1">// change history Retrieved 2026-09-08, License - CC BY-SA 4.0</span>
+
+<span class="kt">unsigned</span> <span class="nf">hash_uint</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">((</span><span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">^</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="mh">0x45d9f3bu</span><span class="p">;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">((</span><span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">^</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="mh">0x45d9f3bu</span><span class="p">;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">^</span> <span class="n">x</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">utf8_to_uint</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">utf8_char</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="n">utf8_buffer</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span> <span class="p">};</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">utf8_char_cpy</span><span class="p">(</span><span class="n">utf8_char</span><span class="p">,</span> <span class="n">utf8_buffer</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">utf8_buffer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">24</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">utf8_buffer</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">+</span>
+                         <span class="p">(</span><span class="n">utf8_buffer</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">utf8_buffer</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">value</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">word_type_t</span> <span class="o">*</span><span class="n">word_type_init</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">word</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">word</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+    <span class="n">word_type_t</span> <span class="o">*</span><span class="n">word_type</span> <span class="o">=</span> <span class="p">(</span><span class="n">word_type_t</span> <span class="o">*</span><span class="p">)</span><span class="n">calloc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">word_type_t</span><span class="p">));</span>
+    <span class="n">word_type</span><span class="o">-&gt;</span><span class="n">word</span>        <span class="o">=</span> <span class="n">strdup</span><span class="p">(</span><span class="n">word</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">word_type</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">word_type_update</span><span class="p">(</span><span class="n">word_type_t</span> <span class="o">*</span><span class="n">word</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">pos</span><span class="p">,</span> <span class="kt">double</span> <span class="n">freq</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">word</span> <span class="o">==</span> <span class="nb">nullptr</span> <span class="o">||</span> <span class="n">pos</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">POS_FREQ_MAXLENGTH</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">strncmp</span><span class="p">(</span><span class="n">word</span><span class="o">-&gt;</span><span class="n">posfreq</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pos</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">POS_MAXLENGTH</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// already has the pos data, should be a mistake</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"fail to update word freq with word %s and pos %s: another "</span>
+                   <span class="s">"entry existed"</span><span class="p">,</span>
+                   <span class="n">word</span><span class="o">-&gt;</span><span class="n">word</span><span class="p">,</span> <span class="n">pos</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="n">word</span><span class="o">-&gt;</span><span class="n">posfreq</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pos</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">strncpy</span><span class="p">(</span><span class="n">word</span><span class="o">-&gt;</span><span class="n">posfreq</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pos</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">POS_MAXLENGTH</span><span class="p">);</span>
+            <span class="n">word</span><span class="o">-&gt;</span><span class="n">posfreq</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span><span class="p">;</span>
+            <span class="n">word</span><span class="o">-&gt;</span><span class="n">freq</span> <span class="o">+=</span> <span class="n">freq</span><span class="p">;</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">"Warning: max length of POS_FREQ_MAXLENGTH exceeded"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">word_type_destroy</span><span class="p">(</span><span class="n">word_type_t</span> <span class="o">*</span><span class="n">word</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">word</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">word</span><span class="o">-&gt;</span><span class="n">word</span> <span class="o">!=</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">word</span><span class="o">-&gt;</span><span class="n">word</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">trie_node_t</span> <span class="o">*</span><span class="n">trie_node_init</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">trie_node_t</span> <span class="o">*</span><span class="n">node</span> <span class="o">=</span> <span class="p">(</span><span class="n">trie_node_t</span> <span class="o">*</span><span class="p">)</span><span class="n">calloc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">trie_node_t</span><span class="p">));</span>
+    <span class="k">return</span> <span class="n">node</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">trie_node_destroy</span><span class="p">(</span><span class="n">trie_node_t</span> <span class="o">*</span><span class="n">node</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">table</span> <span class="o">!=</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">trie_table_destroy</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">table</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">wordptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">word_type_destroy</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">wordptr</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">trie_node_t</span> <span class="o">*</span><span class="n">trie_node_add</span><span class="p">(</span><span class="n">trie_node_t</span> <span class="o">*</span><span class="n">node</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">utf8_string</span><span class="p">,</span>
+                           <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">utf8_rest</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">pos</span><span class="p">,</span>
+                           <span class="kt">double</span> <span class="n">freq</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">==</span> <span class="nb">nullptr</span> <span class="o">||</span> <span class="n">utf8_string</span> <span class="o">==</span> <span class="nb">nullptr</span> <span class="o">||</span> <span class="n">utf8_rest</span> <span class="o">==</span> <span class="nb">nullptr</span> <span class="o">||</span>
+        <span class="n">pos</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">char</span> <span class="n">utf8_char</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">rest</span> <span class="o">=</span> <span class="n">utf8_char_pop</span><span class="p">(</span><span class="n">utf8_rest</span><span class="p">,</span> <span class="n">utf8_char</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">table</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">node</span><span class="o">-&gt;</span><span class="n">table</span> <span class="o">=</span> <span class="n">trie_table_init</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="c1">// find child with given utf8 character</span>
+    <span class="n">trie_node_t</span> <span class="o">*</span><span class="n">child</span> <span class="o">=</span> <span class="n">trie_table_add</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">table</span><span class="p">,</span> <span class="n">utf8_to_uint</span><span class="p">(</span><span class="n">utf8_char</span><span class="p">));</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">rest</span> <span class="o">!=</span> <span class="nb">nullptr</span> <span class="o">&amp;&amp;</span> <span class="n">rest</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">'\0'</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">trie_node_add</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">utf8_string</span><span class="p">,</span> <span class="n">rest</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">freq</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">child</span><span class="o">-&gt;</span><span class="n">wordptr</span> <span class="o">=</span> <span class="n">word_type_init</span><span class="p">(</span><span class="n">utf8_string</span><span class="p">);</span>
+        <span class="n">word_type_update</span><span class="p">(</span><span class="n">child</span><span class="o">-&gt;</span><span class="n">wordptr</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">freq</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">child</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">trie_node_t</span> <span class="o">*</span><span class="n">trie_node_get</span><span class="p">(</span><span class="n">trie_node_t</span> <span class="o">*</span><span class="n">node</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">utf8_string</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">==</span> <span class="nb">nullptr</span> <span class="o">||</span> <span class="n">utf8_string</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+    <span class="kt">char</span> <span class="n">utf8_char</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">rest</span> <span class="o">=</span> <span class="n">utf8_char_pop</span><span class="p">(</span><span class="n">utf8_string</span><span class="p">,</span> <span class="n">utf8_char</span><span class="p">);</span>
+
+    <span class="c1">// find child with given utf8 character</span>
+    <span class="n">trie_node_t</span> <span class="o">*</span><span class="n">child</span> <span class="o">=</span> <span class="n">trie_table_get</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">table</span><span class="p">,</span> <span class="n">utf8_to_uint</span><span class="p">(</span><span class="n">utf8_char</span><span class="p">));</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">child</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">rest</span> <span class="o">==</span> <span class="nb">nullptr</span> <span class="o">||</span> <span class="n">rest</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'\0'</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">child</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">trie_node_get</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">rest</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">trie_table_t</span> <span class="o">*</span><span class="n">trie_table_init</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">trie_table_t</span> <span class="o">*</span><span class="n">table</span> <span class="o">=</span> <span class="p">(</span><span class="n">trie_table_t</span> <span class="o">*</span><span class="p">)</span><span class="n">calloc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">trie_table_t</span><span class="p">));</span>
+    <span class="k">return</span> <span class="n">table</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">trie_table_destroy</span><span class="p">(</span><span class="n">trie_table_t</span> <span class="o">*</span><span class="n">table</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">table</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">TRIE_HASHTABLE_SIZE</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">table_size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">keys</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="nb">nullptr</span> <span class="o">||</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Warning: unexpected nullptr in hashtable in file %s</span><span class="se">\n</span><span class="s"> at "</span>
+                   <span class="s">"line %d"</span><span class="p">,</span>
+                   <span class="n">__FILE__</span><span class="p">,</span> <span class="n">__LINE__</span><span class="p">);</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">table_count</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">trie_node_t</span> <span class="o">*</span><span class="n">node</span> <span class="o">=</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+            <span class="n">trie_node_destroy</span><span class="p">(</span><span class="n">node</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">free</span><span class="p">(</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">keys</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">table</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">trie_node_t</span> <span class="o">*</span><span class="n">trie_table_add</span><span class="p">(</span><span class="n">trie_table_t</span> <span class="o">*</span><span class="n">table</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">key</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">table</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">table_index</span> <span class="o">=</span> <span class="n">hash_uint</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">%</span> <span class="n">TRIE_HASHTABLE_SIZE</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">table_count</span><span class="p">[</span><span class="n">table_index</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">keys</span><span class="p">[</span><span class="n">table_index</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// find a node with given key, return the node</span>
+            <span class="k">return</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">values</span><span class="p">[</span><span class="n">table_index</span><span class="p">][</span><span class="n">i</span><span class="p">];</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// no present key with given value, add a new one</span>
+
+    <span class="c1">// make sure the table is large enough</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">table_size</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// create table if no table existed</span>
+
+        <span class="n">table</span><span class="o">-&gt;</span><span class="n">keys</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span> <span class="o">=</span>
+            <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="p">)</span><span class="n">calloc</span><span class="p">(</span><span class="n">TRIE_HASHTABLE_INIT_LENGTH</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+        <span class="n">table</span><span class="o">-&gt;</span><span class="n">values</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">trie_node_t</span> <span class="o">**</span><span class="p">)</span><span class="n">calloc</span><span class="p">(</span>
+            <span class="n">TRIE_HASHTABLE_INIT_LENGTH</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">trie_node_t</span> <span class="o">*</span><span class="p">));</span>
+        <span class="n">table</span><span class="o">-&gt;</span><span class="n">table_size</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">table_size</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span> <span class="o">==</span>
+               <span class="n">table</span><span class="o">-&gt;</span><span class="n">table_count</span><span class="p">[</span><span class="n">table_index</span><span class="p">])</span> <span class="p">{</span>
+        <span class="c1">// table full, resize table</span>
+
+        <span class="n">table</span><span class="o">-&gt;</span><span class="n">keys</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="p">)</span><span class="n">realloc</span><span class="p">(</span>
+            <span class="n">table</span><span class="o">-&gt;</span><span class="n">keys</span><span class="p">[</span><span class="n">table_index</span><span class="p">],</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">table_count</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+        <span class="n">table</span><span class="o">-&gt;</span><span class="n">values</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">trie_node_t</span> <span class="o">**</span><span class="p">)</span><span class="n">realloc</span><span class="p">(</span>
+            <span class="n">table</span><span class="o">-&gt;</span><span class="n">values</span><span class="p">[</span><span class="n">table_index</span><span class="p">],</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">table_count</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">trie_node_t</span> <span class="o">*</span><span class="p">));</span>
+        <span class="n">table</span><span class="o">-&gt;</span><span class="n">table_size</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span> <span class="o">*=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// add new node</span>
+    <span class="n">trie_node_t</span> <span class="o">*</span><span class="n">node</span> <span class="o">=</span> <span class="n">trie_node_init</span><span class="p">();</span>
+    <span class="kt">int</span> <span class="n">elem_index</span>    <span class="o">=</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">table_count</span><span class="p">[</span><span class="n">table_index</span><span class="p">];</span>
+    <span class="n">table</span><span class="o">-&gt;</span><span class="n">table_count</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span><span class="o">++</span><span class="p">;</span>
+    <span class="n">table</span><span class="o">-&gt;</span><span class="n">keys</span><span class="p">[</span><span class="n">table_index</span><span class="p">][</span><span class="n">elem_index</span><span class="p">]</span>   <span class="o">=</span> <span class="n">key</span><span class="p">;</span>
+    <span class="n">table</span><span class="o">-&gt;</span><span class="n">values</span><span class="p">[</span><span class="n">table_index</span><span class="p">][</span><span class="n">elem_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">node</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">trie_node_t</span> <span class="o">*</span><span class="n">trie_table_get</span><span class="p">(</span><span class="n">trie_table_t</span> <span class="o">*</span><span class="n">table</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">key</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">table</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">table_index</span> <span class="o">=</span> <span class="n">hash_uint</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">%</span> <span class="n">TRIE_HASHTABLE_SIZE</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">keys</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span> <span class="o">==</span> <span class="nb">nullptr</span> <span class="o">||</span>
+        <span class="n">table</span><span class="o">-&gt;</span><span class="n">values</span><span class="p">[</span><span class="n">table_index</span><span class="p">]</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">table_count</span><span class="p">[</span><span class="n">table_index</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">keys</span><span class="p">[</span><span class="n">table_index</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// find a node with given key, return the node</span>
+            <span class="k">return</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">values</span><span class="p">[</span><span class="n">table_index</span><span class="p">][</span><span class="n">i</span><span class="p">];</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">Trie</span><span class="o">::</span><span class="n">Trie</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">trie_node_init</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="n">Trie</span><span class="o">::~</span><span class="n">Trie</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">trie_node_destroy</span><span class="p">(</span><span class="n">root</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="n">Trie</span><span class="o">::</span><span class="n">load</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">filename</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">file</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">file</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"fopen"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">char</span> <span class="n">line_buffer</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="n">word_buffer</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="n">pos_buffer</span><span class="p">[</span><span class="mi">24</span><span class="p">];</span>
+    <span class="kt">double</span> <span class="n">freq</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">read_bytes</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">fgets</span><span class="p">(</span><span class="n">line_buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">line_buffer</span><span class="p">),</span> <span class="n">file</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">read_bytes</span> <span class="o">=</span>
+            <span class="n">sscanf</span><span class="p">(</span><span class="n">line_buffer</span><span class="p">,</span> <span class="s">"%s</span><span class="se">\t</span><span class="s">%s</span><span class="se">\t</span><span class="s">%lf"</span><span class="p">,</span> <span class="n">word_buffer</span><span class="p">,</span> <span class="n">pos_buffer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">freq</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">read_bytes</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">insert</span><span class="p">(</span><span class="n">word_buffer</span><span class="p">,</span> <span class="n">pos_buffer</span><span class="p">,</span> <span class="n">freq</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">file</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">Trie</span><span class="o">::</span><span class="n">insert</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">word</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">pos</span><span class="p">,</span> <span class="kt">double</span> <span class="n">freq</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">trie_node_add</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">freq</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// void search(const char *word) {</span>
+<span class="c1">//     // TODO</span>
+<span class="c1">// }</span>
+
+<span class="n">word_type_t</span> <span class="o">*</span><span class="n">Trie</span><span class="o">::</span><span class="n">search</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">word</span><span class="p">,</span> <span class="n">trie_node_t</span> <span class="o">*</span><span class="n">node</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">word</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">root</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">trie_node_t</span> <span class="o">*</span><span class="n">node2</span> <span class="o">=</span> <span class="n">trie_node_get</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">word</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">node2</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">node2</span><span class="o">-&gt;</span><span class="n">wordptr</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">Trie</span><span class="o">::</span><span class="n">get_best_pos</span><span class="p">(</span><span class="n">word_type_t</span> <span class="o">*</span><span class="n">word</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">pos</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">word</span> <span class="o">==</span> <span class="nb">nullptr</span> <span class="o">||</span> <span class="n">pos</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">puts</span><span class="p">(</span><span class="s">"Warning: pos buffer is not empty"</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="n">word</span><span class="o">-&gt;</span><span class="n">posfreq</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">pos</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">puts</span><span class="p">(</span><span class="s">"Warning: no valid pos info for given word"</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kt">double</span> <span class="n">freq</span> <span class="o">=</span> <span class="n">word</span><span class="o">-&gt;</span><span class="n">posfreq</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">freq</span><span class="p">;</span>
+    <span class="n">strcpy</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">word</span><span class="o">-&gt;</span><span class="n">posfreq</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">pos</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">POS_FREQ_MAXLENGTH</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">word</span><span class="o">-&gt;</span><span class="n">posfreq</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">freq</span> <span class="o">&lt;=</span> <span class="n">freq</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">word</span><span class="o">-&gt;</span><span class="n">posfreq</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pos</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">double</span> <span class="n">Trie</span><span class="o">::</span><span class="n">get_freq</span><span class="p">(</span><span class="n">word_type_t</span> <span class="o">*</span><span class="n">word</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">pos</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">word</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">pos</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">word</span><span class="o">-&gt;</span><span class="n">freq</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">POS_FREQ_MAXLENGTH</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">strncpy</span><span class="p">(</span><span class="n">word</span><span class="o">-&gt;</span><span class="n">posfreq</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pos</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">POS_MAXLENGTH</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// found</span>
+            <span class="k">return</span> <span class="n">word</span><span class="o">-&gt;</span><span class="n">posfreq</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">freq</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">double</span> <span class="n">Trie</span><span class="o">::</span><span class="n">get_freq</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">word</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">pos</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">word</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+
+    <span class="n">word_type_t</span> <span class="o">*</span><span class="n">word_type</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="n">word</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">get_freq</span><span class="p">(</span><span class="n">word_type</span><span class="p">,</span> <span class="n">pos</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// functions defined in `fun.h`</span>
+
+<span class="kt">int</span> <span class="nf">utf8_char_len</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">p</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">utf8_char_cpy</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">src</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buffer</span><span class="p">);</span>
+<span class="kt">bool</span> <span class="nf">utf8_char_comp</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">c1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">c2</span><span class="p">);</span>
+<span class="kt">bool</span> <span class="nf">utf8_char_contain</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">c</span><span class="p">);</span>
+<span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="nf">utf8_char_pop</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">c</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">utf8_char_len</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// supposing `p` point to an utf8 array, move to the next utf8 char</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">==</span> <span class="nb">nullptr</span> <span class="o">||</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'\0'</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">skip</span>  <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">head</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">((</span><span class="n">head</span> <span class="o">&amp;</span> <span class="mb">0b10000000</span><span class="p">)</span> <span class="o">==</span> <span class="mb">0b00000000</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// first bit 0, valid utf8 char with length 1</span>
+        <span class="n">skip</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="n">head</span> <span class="o">&amp;</span> <span class="mb">0b11100000</span><span class="p">)</span> <span class="o">==</span> <span class="mb">0b11000000</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// first three bits 110, valid utf8 char with length 2</span>
+        <span class="n">skip</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="n">head</span> <span class="o">&amp;</span> <span class="mb">0b11110000</span><span class="p">)</span> <span class="o">==</span> <span class="mb">0b11100000</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// first four bits 1110, valid utf8 char with length 3</span>
+        <span class="n">skip</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="n">head</span> <span class="o">&amp;</span> <span class="mb">0b11111000</span><span class="p">)</span> <span class="o">==</span> <span class="mb">0b11110000</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// first five bits 11110, valid utf8 char with length 4</span>
+        <span class="n">skip</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// not a valid uft8 char</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">skip</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">utf8_char_cpy</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">src</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buffer</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">char_len</span> <span class="o">=</span> <span class="n">utf8_char_len</span><span class="p">(</span><span class="n">src</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">char_len</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">strncpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">char_len</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">char_len</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="n">utf8_char_comp</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">c1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">c2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">c1_len</span> <span class="o">=</span> <span class="n">utf8_char_len</span><span class="p">(</span><span class="n">c1</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">c2_len</span> <span class="o">=</span> <span class="n">utf8_char_len</span><span class="p">(</span><span class="n">c1</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">c1_len</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">c1_len</span> <span class="o">!=</span> <span class="n">c2_len</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// either c1 or c2 is not valid utf8 char,</span>
+        <span class="c1">// or their length (byte) is different</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// compare n byte</span>
+    <span class="kt">bool</span> <span class="n">is_same</span> <span class="o">=</span> <span class="p">(</span><span class="n">strncmp</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c1_len</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">is_same</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="n">utf8_char_contain</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">c</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">i</span>   <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">utf8_char_comp</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span> <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="n">utf8_char_len</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="n">i</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">utf8_char_pop</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">c</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">utf8_char_cpy</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">s</span> <span class="o">+</span> <span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<hr />
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+      <p><code class="language-plaintext highlighter-rouge">unistd.h</code> is POSIX operating system API, so equivalent approach should be applied on Windows. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+  </div><a class="u-url" href="/dev/2026/09/10/defeat-by-ctbparser.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Wenhao Luo&#39;s Personal Site</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Wenhao Luo&#39;s Personal Site</li><li><a class="u-email" href="mailto:wenhao-luo@outlook.com">wenhao-luo@outlook.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/LuoQuestionmark"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">LuoQuestionmark</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>This is my personal website hosting on GitHub.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

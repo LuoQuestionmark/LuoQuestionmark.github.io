@@ -4,7 +4,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
 <title>理解 Conditional Random Field (CRF) | Wenhao Luo’s Personal Site</title>
-<meta name="generator" content="Jekyll v3.9.0" />
+<meta name="generator" content="Jekyll v3.10.0" />
 <meta property="og:title" content="理解 Conditional Random Field (CRF)" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="This post is written in Chinese, as it attacks a problem of Chinese language processing." />
@@ -51,7 +51,7 @@
 
 <h2 id="前言">前言</h2>
 
-<p>本文是<a href="./2026-09-10-defeat-by-ctbparser.md">上一篇文章</a>的后续. 在 <code class="language-plaintext highlighter-rouge">ctbparser</code> 的实现中, 无法被轻易修改的部分就是它的 POS tagger; 它正是使用 Conditional Random Field 的技术实现的. 本文记载作者对这一算法的了解, 基于 Peng et als. 2004年的论文(后文称”2004论文”)<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup> 和 NLTK 库中的<a href="https://www.nltk.org/_modules/nltk/tag/crf.html">相关实现</a>.</p>
+<p>本文是<a href="https://luoquestionmark.github.io/dev/2026/09/10/defeat-by-ctbparser.html">上一篇文章</a>的后续. 在 <code class="language-plaintext highlighter-rouge">ctbparser</code> 的实现中, 无法被轻易修改的部分就是它的 POS tagger; 它正是使用 Conditional Random Field 的技术实现的. 本文记载作者对这一算法的了解, 基于 Peng et als. 2004年的论文(后文称”2004论文”)<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup> 和 NLTK 库中的<a href="https://www.nltk.org/_modules/nltk/tag/crf.html">相关实现</a>.</p>
 
 <h2 id="conditional-random-field">Conditional Random Field</h2>
 
@@ -168,7 +168,7 @@ for Segmenting and Labeling Sequence Data. 设计之初就考虑到了处理文�
   <p>python-crfsuite is a python binding to CRFsuite.</p>
 </blockquote>
 
-<p>另外, 对于<a href="./2026-09-10-defeat-by-ctbparser.md">上一篇文章</a>提到的 <code class="language-plaintext highlighter-rouge">ctbparser</code>, 其作者使用的 <code class="language-plaintext highlighter-rouge">crfparser</code> 则可以在 <a href="https://sourceforge.net/projects/crfparser/">sourceforge</a> 上找到.</p>
+<p>另外, 对于<a href="https://luoquestionmark.github.io/dev/2026/09/10/defeat-by-ctbparser.html">上一篇文章</a>提到的 <code class="language-plaintext highlighter-rouge">ctbparser</code>, 其作者使用的 <code class="language-plaintext highlighter-rouge">crfparser</code> 则可以在 <a href="https://sourceforge.net/projects/crfparser/">sourceforge</a> 上找到.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># NLTK CRF 的训练函数. 这里直接调用了 pycrfsuite 的 train 函数.
 </span><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
@@ -469,4 +469,15 @@ for Segmenting and Labeling Sequence Data. 设计之初就考虑到了处理文�
 </footer>
 </body>
 
+  <!--
+  Source - https://stackoverflow.com/a/72931039
+  Posted by nullromo
+  Retrieved 2026-10-13, License - CC BY-SA 4.0
+  -->
+
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+
 </html>
+

@@ -1,9 +1,31 @@
-<!--
-Source - https://stackoverflow.com/a/72931039
-Posted by nullromo
-Retrieved 2026-10-13, License - CC BY-SA 4.0
--->
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: "en" }}">
 
-<script type="text/javascript" id="MathJax-script" async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-</script>
+  {%- include head.html -%}
+
+  <body>
+
+    {%- include header.html -%}
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        {{ content }}
+      </div>
+    </main>
+
+    {%- include footer.html -%}
+
+  </body>
+
+  <!--
+  Source - https://stackoverflow.com/a/72931039
+  Posted by nullromo
+  Retrieved 2026-10-13, License - CC BY-SA 4.0
+  -->
+
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+
+</html>
+

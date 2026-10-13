@@ -9,7 +9,7 @@ This post is written in Chinese, as it attacks a problem of Chinese language pro
 
 ## 前言
 
-本文是[上一篇文章](./2026-09-10-defeat-by-ctbparser.md)的后续. 在 `ctbparser` 的实现中, 无法被轻易修改的部分就是它的 POS tagger; 它正是使用 Conditional Random Field 的技术实现的. 本文记载作者对这一算法的了解, 基于 Peng et als. 2004年的论文(后文称"2004论文")[^1] 和 NLTK 库中的[相关实现](https://www.nltk.org/_modules/nltk/tag/crf.html).
+本文是[上一篇文章](https://luoquestionmark.github.io/dev/2026/09/10/defeat-by-ctbparser.html)的后续. 在 `ctbparser` 的实现中, 无法被轻易修改的部分就是它的 POS tagger; 它正是使用 Conditional Random Field 的技术实现的. 本文记载作者对这一算法的了解, 基于 Peng et als. 2004年的论文(后文称"2004论文")[^1] 和 NLTK 库中的[相关实现](https://www.nltk.org/_modules/nltk/tag/crf.html).
 
 ## Conditional Random Field
 
@@ -111,7 +111,7 @@ $$
 
 > python-crfsuite is a python binding to CRFsuite.
 
-另外, 对于[上一篇文章](./2026-09-10-defeat-by-ctbparser.md)提到的 `ctbparser`, 其作者使用的 `crfparser` 则可以在 [sourceforge](https://sourceforge.net/projects/crfparser/) 上找到.
+另外, 对于[上一篇文章](https://luoquestionmark.github.io/dev/2026/09/10/defeat-by-ctbparser.html)提到的 `ctbparser`, 其作者使用的 `crfparser` 则可以在 [sourceforge](https://sourceforge.net/projects/crfparser/) 上找到.
 
 ```python
 # NLTK CRF 的训练函数. 这里直接调用了 pycrfsuite 的 train 函数.

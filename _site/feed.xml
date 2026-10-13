@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2026-10-13T16:03:57+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Wenhao Luo’s Personal Site</title><subtitle>This is my personal website hosting on GitHub.</subtitle><entry><title type="html">理解 Conditional Random Field (CRF)</title><link href="http://localhost:4000/dev/2026/10/11/crf-understanding.html" rel="alternate" type="text/html" title="理解 Conditional Random Field (CRF)" /><published>2026-10-11T20:30:00+08:00</published><updated>2026-10-11T20:30:00+08:00</updated><id>http://localhost:4000/dev/2026/10/11/crf-understanding</id><content type="html" xml:base="http://localhost:4000/dev/2026/10/11/crf-understanding.html"><![CDATA[<p>This post is written in Chinese, as it attacks a problem of Chinese language processing.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2026-10-13T16:32:32+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Wenhao Luo’s Personal Site</title><subtitle>This is my personal website hosting on GitHub.</subtitle><entry><title type="html">理解 Conditional Random Field (CRF)</title><link href="http://localhost:4000/dev/2026/10/11/crf-understanding.html" rel="alternate" type="text/html" title="理解 Conditional Random Field (CRF)" /><published>2026-10-11T20:30:00+08:00</published><updated>2026-10-11T20:30:00+08:00</updated><id>http://localhost:4000/dev/2026/10/11/crf-understanding</id><content type="html" xml:base="http://localhost:4000/dev/2026/10/11/crf-understanding.html"><![CDATA[<p>This post is written in Chinese, as it attacks a problem of Chinese language processing.</p>
 
 <h2 id="前言">前言</h2>
 
@@ -19,13 +19,13 @@ for Segmenting and Labeling Sequence Data. 设计之初就考虑到了处理文�
 
 <p>这里依然引用2001论文的定义:</p>
 
-<blockquote>
-  <p><strong>Definition</strong>. Let $G = (V, E)$ be a graph such that $\mathbf{Y} = (\mathbf{Y}<em>v)</em>{v \in V}$ , so that $\mathbf{Y}$ is indexed by the vertices of $G$. Then $(\mathbf{X}, \mathbf{Y})$ is a <em>conditional random field</em> in case, when conditioned on X, the random variables $\mathbf{Y}_v$ obey the Markov property with respect to the graph: $p(\mathbf{Y}_v \mid \mathbf{X}, \mathbf{Y}_w, w \neq v) = p(\mathbf{Y}_v \mid \mathbf{X}, \mathbf{Y}_w, w \sim v)$, where $w \sim v$ means that w and v are neighbors in G.</p>
-</blockquote>
+<p><strong>Definition</strong>. Let $G = (V, E)$ be a graph such that
+\(\mathbf{Y} = (\mathbf{Y}_v)_{v \in V}\)
+, so that $\mathbf{Y}$ is indexed by the vertices of $G$. Then $(\mathbf{X}, \mathbf{Y})$ is a <em>conditional random field</em> in case, when conditioned on X, the random variables $\mathbf{Y}_v$ obey the Markov property with respect to the graph: $p(\mathbf{Y}_v \mid \mathbf{X}, \mathbf{Y}_w, w \neq v) = p(\mathbf{Y}_v \mid \mathbf{X}, \mathbf{Y}_w, w \sim v)$, where $w \sim v$ means that w and v are neighbors in G.</p>
 
 <p>对于中文切分的问题, $\mathbf X$ 是原文, $\mathbf Y$ 则是对应的切分标记 (切分或不切分); 对于 POS tagging 的问题, 则 $\mathbf X$ 是词汇串, $\mathbf Y$ 为词性标记. 无论对于哪种问题, 这一模型主要希望解决的问题是找到给定的序列 $\mathbf X$ 的最佳标记 $\mathbf Y$.</p>
 
-<p>就我个人的理解而言, $p(\mathbf{Y}<em>v \mid \mathbf{X}, \mathbf{Y}_w, w \neq v) = p(\mathbf{Y}_v \mid \mathbf{X}, \mathbf{Y}_w, w \sim v)$ 保证了”上下文无关”的性质: 对于一个 $\mathbf X$ 的一个标记 $\mathbf Y$, 它的标记仅仅和句子 $\mathbf X$, 以及上下文的标记 $\mathbf Y</em>{neigh}$ 有关.</p>
+<p>就我个人的理解而言, \(p(\mathbf{Y}_v \mid \mathbf{X}, \mathbf{Y}_w, w \neq v) = p(\mathbf{Y}_v \mid \mathbf{X}, \mathbf{Y}_w, w \sim v)\) 保证了”上下文无关”的性质: 对于一个 $\mathbf X$ 的一个标记 $\mathbf Y$, 它的标记仅仅和句子 $\mathbf X$, 以及上下文的标记 $\mathbf Y_{neigh}$ 有关.</p>
 
 <h3 id="应用">应用</h3>
 
@@ -83,7 +83,7 @@ for Segmenting and Labeling Sequence Data. 设计之初就考虑到了处理文�
 
 <p>双重求和 $\sum_{t=1}^T{\sum_k}$ 是评估<em>句子构建可能性</em>的求和. 语义上说, 它计算的是特定序列 $\mathbf y$ 存在的可能性 (尚未正则化). $\sum_k$ 评估所有可能的从 $y_{t - 1}$ 到 $y_t$ 的过程. 求和 $\sum_{t=1}^T$ 计算了 $y_0 y_1 \dots y_{T}$ (即 $\mathbf y$) 的过程.</p>
 
-<p>${Z_c}$是正则化的参数, 它是基于已知句子 $\mathbf x$ 和 feature function 计算的. 对于一组定义好的 feature function $(f_i)<em>{i \in [1, k]}$ 和对应的权重 $(\lambda_i)</em>{i \in [1, k]}$, 对于给定的句子 $\mathbf x$, 所有<em>可能的</em>标记序列 $\mathbf y_p$ 都能够计算对应的值</p>
+<p>${Z_c}$是正则化的参数, 它是基于已知句子 $\mathbf x$ 和 feature function 计算的. 对于一组定义好的 feature function \((f_i)_{i \in [1, k]}\), 权重 $(\lambda_i)_{i \in [1, k]}$, 对于给定的句子 $\mathbf x$, 所有<em>可能的</em>标记序列 $\mathbf y_p$ 都能够计算对应的值</p>
 
 \[z_p = {exp\big( \sum^T_{t=1} \sum_k {\lambda_k f_k(y_{t - 1}, y_t,\mathbf x, t)} \big)}\]
 
